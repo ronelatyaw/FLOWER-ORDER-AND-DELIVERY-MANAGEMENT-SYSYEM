@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Orders | Marge's Flower Shop{% endblock %}
+{% block page_heading %}Orders{% endblock %}
+{% block content %}
+<div class="page-intro"><div><h2>Order Management</h2><p>Create flower orders and update delivery progress.</p></div></div>
+<section class="panel form-panel">
+  <div class="panel-title">＋ Create Order</div>
+  <form method="POST" class="row g-3">
+    <div class="col-md-4"><label class="form-label">Customer</label><select name="customer_id" class="form-select" required><option value="">Choose customer</option>{% for c in customers %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select></div>
+    <div class="col-md-4"><label class="form-label">Product</label><select name="product_id" class="form-select" required>{% for p in products %}<option value="{{ p.id }}">{{ p.name }} — ₱{{ "{:,.2f}".format(p.price) }} ({{ p.stock }} left)</option>{% endfor %}</select></div>
+    <div class="col-md-2"><label class="form-label">Quantity</label><input name="quantity" type="number" min="1" value="1" class="form-control" required></div>
+    <div class="col-md-2 d-flex align-items-end"><button class="btn btn-rose w-100">Create Order</button></div>
+  </form>
+  <small class="form-hint">Tip: Add customers on the Customers page before creating an order.</small>
+</section>
+<section class="panel table-panel">
+  <div class="panel-title">All Orders <span class="count-pill">{{ orders|length }} orders</span></div>
+  <div class="table-responsive"><table class="table dashboard-table align-middle"><thead><tr><th>Order ID</th><th>Customer</th><th>Product</th><th>Qty</th><th>Total</th><th>Date</th><th>Status</th><th>Update</th></tr></thead><tbody>
+  {% for o in orders %}<tr><td>{{ o.order_code or ('FOD-' ~ '%04d'|format(o.id)) }}</td><td>{{ o.customer }}</td><td>{{ o.product }}</td><td>{{ o.quantity }}</td><td>₱{{ "{:,.2f}".format(o.total) }}</td><td>{{ o.order_date.strftime('%b %d, %Y') }}</td><td><span class="status-badge {{ o.status|lower|replace(' ','-') }}">{{ o.status }}</span></td><td><form method="POST" action="{{ url_for('update_order_status', order_id=o.id) }}" class="status-form"><select name="status" class="form-select form-select-sm">{% for s in ['Pending','Processing','On Delivery','Delivered','Cancelled'] %}<option {{ 'selected' if o.status==s else '' }}>{{ s }}</option>{% endfor %}</select><button class="btn btn-sm btn-outline-secondary">Save</button></form></td></tr>
+  {% else %}<tr><td colspan="8" class="text-center">No orders yet.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

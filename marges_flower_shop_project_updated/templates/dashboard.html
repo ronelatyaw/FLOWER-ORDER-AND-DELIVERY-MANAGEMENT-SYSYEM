@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | Marge's Flower Shop{% endblock %}
+{% block content %}
+<div class="stats-grid">
+  <div class="stat-card pink"><div class="stat-top"><span class="stat-icon">♧</span><span class="stat-label">Total Orders</span></div><strong>{{ stats.total_orders }}</strong><small class="trend">↗ 12%</small><p>All customer orders</p></div>
+  <div class="stat-card yellow"><div class="stat-top"><span class="stat-icon">◷</span><span class="stat-label">Pending Orders</span></div><strong>{{ stats.pending_orders }}</strong><small class="trend">↗ 2%</small><p>Waiting for processing</p></div>
+  <div class="stat-card green"><div class="stat-top"><span class="stat-icon">✓</span><span class="stat-label">Delivered Orders</span></div><strong>{{ stats.delivered_orders }}</strong><small class="trend">↗ 18%</small><p>Completed deliveries</p></div>
+  <div class="stat-card blue"><div class="stat-top"><span class="stat-icon">♟</span><span class="stat-label">Total Customers</span></div><strong>{{ stats.total_customers }}</strong><small class="trend">↗ 9%</small><p>Registered customers</p></div>
+  <div class="stat-card sky"><div class="stat-top"><span class="stat-icon">♙</span><span class="stat-label">Total Products</span></div><strong>{{ stats.total_products }}</strong><small class="trend muted">— 0%</small><p>Available flower products</p></div>
+  <div class="stat-card mint"><div class="stat-top"><span class="stat-icon">₱</span><span class="stat-label">Total Sales</span></div><strong>₱{{ "{:,.2f}".format(stats.total_sales) }}</strong><small class="trend">↗ 24%</small><p>Revenue from delivered orders</p></div>
+</div>
+
+<div class="overview-grid">
+  <section class="panel status-panel">
+    <div class="panel-title"><span>▥</span> Order Status Overview</div>
+    <div class="chart-wrap donut-wrap"><canvas id="statusChart"></canvas><div class="donut-center"><strong>{{ stats.total_orders }}</strong><span>Total Orders</span></div></div>
+    <div class="legend-list">
+      {% set colors = {'Pending':'#f47f9f','Processing':'#f7bd4c','On Delivery':'#76b7ed','Delivered':'#77c987','Cancelled':'#92929a'} %}
+      {% for row in status_rows %}
+      <div class="legend-row"><span class="legend-dot" style="background:{{ colors.get(row.status, '#aaa') }}"></span><span>{{ row.status }}</span><b>{{ row.count }}</b><small>{{ "%.1f"|format((row.count / stats.total_orders * 100) if stats.total_orders else 0) }}%</small></div>
+      {% endfor %}
+    </div>
+  </section>
+  <section class="panel sales-panel">
+    <div class="panel-title"><span>⌁</span> Sales Overview</div>
+    <div class="sales-chart"><canvas id="salesChart"></canvas></div>
+  </section>
+  <section class="panel top-products-panel">
+    <div class="panel-title"><span>★</span> Top Selling Products</div>
+    {% for p in top_products %}
+    <div class="product-rank"><span class="product-emoji">{{ ['🌹','🌻','🌸','💐','🤍'][loop.index0 % 5] }}</span><span>{{ p.name }}</span><b>{{ p.orders_count }} orders</b></div>
+    {% else %}<p class="empty-state">No products yet.</p>{% endfor %}
+  </section>
+</div>
+
+<div class="lower-grid">
+  <section class="panel recent-panel">
+    <div class="panel-title"><span>▤</span> Recent Orders <a href="{{ url_for('orders') }}">View All Orders →</a></div>
+    <div class="table-responsive">
+      <table class="table dashboard-table">
+        <thead><tr><th>Order ID</th><th>Customer</th><th>Product</th><th>Qty</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>
+        {% for o in recent_orders %}
+        <tr><td>#{{ o.order_code or ('FOD-' ~ '%04d'|format(o.id)) }}</td><td>{{ o.customer }}</td><td><span class="product-emoji">{{ ['🌹','🌻','🌸','💐','🌷'][loop.index0 % 5] }}</span>{{ o.product }}</td><td>{{ o.quantity }}</td><td>₱{{ "{:,.2f}".format(o.total) }}</td><td><span class="status-badge {{ o.status|lower|replace(' ','-') }}">{{ o.status }}</span></td><td>{{ o.order_date.strftime('%b %d, %Y') }}</td></tr>
+        {% else %}<tr><td colspan="7" class="text-center py-4">No orders found. Add your first order in Orders.</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="panel stock-panel">
+    <div class="panel-title"><span>⚠</span> Low Stock Products <a href="{{ url_for('products') }}">View All Products →</a></div>
+    {% for p in low_stock %}
+    <div class="stock-row"><span class="product-emoji">{{ p.image }}</span><span>{{ p.name }}</span><span>₱{{ "{:,.2f}".format(p.price) }}</span><b class="stock-count">{{ p.stock }}</b></div>
+    {% else %}<p class="empty-state">All products have healthy stock.</p>{% endfor %}
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const statusLabels = {{ status_rows|map(attribute='status')|list|tojson }};
+const statusValues = {{ status_rows|map(attribute='count')|list|tojson }};
+const salesLabels = {{ sales_rows|map(attribute='month')|list|tojson }};
+const salesValues = {{ sales_rows|map(attribute='total')|list|tojson }};
+renderStatusChart(statusLabels, statusValues);
+renderSalesChart(salesLabels, salesValues);
+</script>
+{% endblock %}

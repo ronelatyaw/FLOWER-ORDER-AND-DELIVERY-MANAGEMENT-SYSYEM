@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Customers | Marge's Flower Shop{% endblock %}
+{% block page_heading %}Customers{% endblock %}
+{% block content %}
+<div class="page-intro"><div><h2>Customer Directory</h2><p>Keep customer contact details in one place.</p></div></div>
+<section class="panel form-panel"><div class="panel-title">＋ Add Customer</div>
+<form method="POST" class="row g-3">
+<div class="col-md-3"><label class="form-label">Full name</label><input name="name" class="form-control" required placeholder="Customer name"></div>
+<div class="col-md-2"><label class="form-label">Phone</label><input name="phone" class="form-control" placeholder="09xx xxx xxxx"></div>
+<div class="col-md-3"><label class="form-label">Email</label><input name="email" type="email" class="form-control" placeholder="name@email.com"></div>
+<div class="col-md-3"><label class="form-label">Address</label><input name="address" class="form-control" placeholder="Delivery address"></div>
+<div class="col-md-1 d-flex align-items-end"><button class="btn btn-rose w-100">Add</button></div>
+</form></section>
+<section class="panel table-panel"><div class="panel-title">All Customers <span class="count-pill">{{ customers|length }} customers</span></div>
+<div class="table-responsive"><table class="table dashboard-table"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>Registered</th></tr></thead><tbody>
+{% for c in customers %}<tr><td>{{ c.name }}</td><td>{{ c.phone or '—' }}</td><td>{{ c.email or '—' }}</td><td>{{ c.address or '—' }}</td><td>{{ c.created_at.strftime('%b %d, %Y') }}</td></tr>{% else %}<tr><td colspan="5" class="text-center">No customers yet.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

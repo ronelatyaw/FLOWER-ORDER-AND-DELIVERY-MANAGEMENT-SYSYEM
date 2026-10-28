@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Marge's Flower Shop{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="storefront-body">
+  <div class="storefront">
+    <header class="storefront-header">
+      <a class="storefront-brand" href="{{ url_for('user_home') }}"><span>🌸</span><span><strong>Marge's</strong><small>Flower Shop</small></span></a>
+      <nav aria-label="Customer navigation">
+        <a href="{{ url_for('user_home') }}">Shop</a>
+        <a href="{{ url_for('user_home') }}#track-orders">Track an order</a>
+        {% if session.get('customer_id') %}
+          <span class="storefront-greeting">Hi, {{ session.get('customer_name') }}</span>
+          <a class="storefront-account" href="{{ url_for('logout') }}">Log out</a>
+        {% else %}
+          <a href="{{ url_for('login') }}">Log in</a>
+          <a class="storefront-account" href="{{ url_for('create_account') }}">Create account</a>
+        {% endif %}
+      </nav>
+    </header>
+    <main class="storefront-content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for category, message in messages %}
+          <div class="alert {{ 'alert-success' if category=='success' else 'alert-danger' }} alert-dismissible fade show" role="alert">
+            {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}{% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="storefront-footer">Fresh flowers, happier moments <span>♡</span></footer>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

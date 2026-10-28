@@ -1,0 +1,19 @@
+{% extends "customer_base.html" %}
+{% block title %}Log in | Marge's Flower Shop{% endblock %}
+{% block content %}
+<section class="auth-card">
+  <div class="auth-flower">🌷</div>
+  <span class="user-eyebrow">WELCOME BACK</span>
+  <h1>Log in to your account</h1>
+  <p>Sign in to enjoy a smoother flower-shopping experience.</p>
+  <form method="POST" class="auth-form">
+    <label class="form-label" for="email">Email address</label>
+    <input class="form-control" id="email" name="email" type="email" value="{{ email|default('') }}" autocomplete="email" required>
+    <label class="form-label" for="password">Password</label>
+    <input class="form-control" id="password" name="password" type="password" autocomplete="current-password" required>
+    <div class="auth-form-links"><a href="{{ url_for('forgot_password') }}">Forgot password?</a></div>
+    <button class="btn btn-rose w-100" type="submit">Log in</button>
+  </form>
+  <div class="auth-switch">New to Marge's? <a href="{{ url_for('create_account') }}">Create an account</a></div>
+</section>
+{% endblock %}

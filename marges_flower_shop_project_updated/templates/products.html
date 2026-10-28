@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Products | Marge's Flower Shop{% endblock %}
+{% block page_heading %}Products{% endblock %}
+{% block content %}
+<div class="page-intro"><div><h2>Flower Products</h2><p>Manage bouquet listings, prices, and stock levels.</p></div></div>
+<section class="panel form-panel">
+  <div class="panel-title">＋ Add New Product</div>
+  <form method="POST" class="row g-3">
+    <div class="col-md-4"><label class="form-label">Product name</label><input name="name" class="form-control" placeholder="e.g. Pink Rose Bouquet" required></div>
+    <div class="col-md-3"><label class="form-label">Category</label><input name="category" class="form-control" placeholder="Rose Bouquet" value="Bouquet"></div>
+    <div class="col-md-2"><label class="form-label">Price (₱)</label><input name="price" type="number" min="0" step="0.01" class="form-control" value="799.00" required></div>
+    <div class="col-md-2"><label class="form-label">Stock</label><input name="stock" type="number" min="0" class="form-control" value="5" required></div>
+    <div class="col-md-1"><label class="form-label">Icon</label><input name="image" class="form-control" value="🌷" maxlength="20"></div>
+    <div class="col-12"><button class="btn btn-rose">Add Product</button></div>
+  </form>
+</section>
+<section class="panel table-panel">
+  <div class="panel-title">All Products <span class="count-pill">{{ products|length }} items</span></div>
+  <div class="table-responsive"><table class="table dashboard-table align-middle">
+  <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Availability</th><th>Action</th></tr></thead><tbody>
+  {% for p in products %}<tr><td><span class="product-emoji large-emoji">{{ p.image }}</span>{{ p.name }}</td><td>{{ p.category }}</td><td>₱{{ "{:,.2f}".format(p.price) }}</td><td>{{ p.stock }}</td><td><span class="status-badge {{ 'delivered' if p.stock > 5 else 'pending' }}">{{ 'In Stock' if p.stock > 5 else 'Low Stock' }}</span></td><td><form method="POST" action="{{ url_for('delete_product', product_id=p.id) }}" onsubmit="return confirm('Delete this product?')"><button class="btn btn-sm btn-outline-danger">Delete</button></form></td></tr>
+  {% else %}<tr><td colspan="6" class="text-center">No products added yet.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}
